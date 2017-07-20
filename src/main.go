@@ -11,7 +11,7 @@ func main() {
 	// Initial state
 	model := new(api.Model)
 	model.Players = make(map[string]api.Player)
-	model.Ch = make(chan int, 1)
+	model.Ch = make(chan int64, 1)
 	model.Ch <- 0
 
 	router := mux.NewRouter()

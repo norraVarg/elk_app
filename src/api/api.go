@@ -12,14 +12,14 @@ import (
 
 type Model struct {
 	Players map[string]Player
-	Ch      chan int
+	Ch      chan int64
 }
 
 type Player struct {
 	ID        string
-	Counter   int
-	SumValue  int
-	LastValue int
+	Counter   int64
+	SumValue  int64
+	LastValue int64
 }
 
 type Config struct {
@@ -36,7 +36,7 @@ func (model *Model) Update(_ http.ResponseWriter, request *http.Request) {
 		param = playerr.LastValue
 	}
 
-	response, err := http.Get(Elkhost + "?n=" + strconv.Itoa(param))
+	response, err := http.Get(Elkhost + "?n=" + strconv.Itoa(int(param)))
 	if err != nil {
 		// Missing err log
 		return
@@ -44,7 +44,7 @@ func (model *Model) Update(_ http.ResponseWriter, request *http.Request) {
 	defer response.Body.Close()
 	// Skipping err check
 	body, _ := ioutil.ReadAll(response.Body)
-	value, _ := strconv.Atoi(string(body))
+	value, _ := strconv.ParseInt(string(body), 10, 64)
 
 	if player, ok := model.Players[id]; ok {
 		model.Players[id] = Player{ID: id, Counter: player.Counter + 1, SumValue: player.SumValue + value, LastValue: value}
@@ -56,7 +56,7 @@ func (model *Model) Update(_ http.ResponseWriter, request *http.Request) {
 }
 
 func (model *Model) GetStatistic(_ http.ResponseWriter, _ *http.Request) {
-	totalRequests := 0
+	totalRequests := int64(0)
 	for id, player := range model.Players {
 		totalRequests += player.Counter
 		fmt.Println("Player", id)
